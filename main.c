@@ -1,9 +1,13 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 
-const int SCREEN_WIDTH = 1200;
-const int SCREEN_HEIGHT = 780;
+const int SCREEN_WIDTH = 1920;
+const int SCREEN_HEIGHT = 1080;
+
+// graph settings
+const float SCALE = 30.0f;  // 30 pixels = 1 unit
 
 // application state
 typedef struct {
@@ -17,6 +21,7 @@ void process_input(AppContext *app);
 void cleanup_app(AppContext *app);
 void render_app(AppContext *app);
 bool print_sdl_error(const char *message);
+void draw_axes(AppContext *app);
 
 int main(void) {
     AppContext app;
@@ -46,7 +51,7 @@ bool init_app(AppContext *app) {
         SDL_WINDOWPOS_CENTERED,
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
-        0
+        SDL_WINDOW_RESIZABLE
     );
     if (!app->window) return print_sdl_error("Window failed to create");
 
@@ -75,6 +80,10 @@ void process_input(AppContext *app) {
 void render_app(AppContext *app) {
     SDL_SetRenderDrawColor(app->renderer, 44, 0, 30, 255); // 62, 32, 83 // 94, 39, 80
     SDL_RenderClear(app->renderer);
+
+    draw_axes(app);
+    // draw_graph(app);
+
     SDL_RenderPresent(app->renderer);
 }
 
@@ -88,4 +97,17 @@ void cleanup_app(AppContext *app) {
 bool print_sdl_error(const char *message) {
     printf("ERROR: %s: %s\n", message, SDL_GetError());
     return false;
+}
+
+void draw_axes(AppContext *app) {
+    int w;
+    int h;
+    SDL_GetWindowSize(app->window, &w, &h);
+
+    int center_x = w / 2;
+    int center_y = h / 2;
+
+    SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
+    SDL_RenderDrawLine(app->renderer, 0, center_y, w, center_y);
+    SDL_RenderDrawLine(app->renderer, center_x, 0, center_x, h);
 }
