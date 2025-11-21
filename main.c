@@ -7,7 +7,7 @@ const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
 
 // graph settings
-const float SCALE = 30.0f;  // 30 pixels = 1 unit
+const float SCALE = 50.0f;  // 30 pixels = 1 unit
 
 // application state
 typedef struct {
