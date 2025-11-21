@@ -14,6 +14,11 @@ typedef struct {
     SDL_Window *window;
     SDL_Renderer *renderer;
     bool quit;
+
+    int screen_width;
+    int screen_height;
+    int center_x;
+    int center_y;
 } AppContext;
 
 bool init_app(AppContext *app);
@@ -80,6 +85,10 @@ void process_input(AppContext *app) {
 }
 
 void render_app(AppContext *app) {
+    SDL_GetWindowSize(app->window, &app->screen_width, &app->screen_height);
+    app->center_x = app->screen_width / 2;
+    app->center_y = app->screen_height / 2;
+
     SDL_SetRenderDrawColor(app->renderer, 44, 0, 30, 255); // 62, 32, 83 // 94, 39, 80
     SDL_RenderClear(app->renderer);
 
@@ -109,41 +118,29 @@ void get_window_center(AppContext *app, int *center_x, int *center_y) {
     *center_y = h / 2;
 }
 
-void draw_axes(AppContext *app) {
-    int w, h;
-    SDL_GetWindowSize(app->window, &w, &h);
-
-    int center_x, center_y;
-    get_window_center(app, &center_x, &center_y);
-
-    SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
-    SDL_RenderDrawLine(app->renderer, 0, center_y, w, center_y);
-    SDL_RenderDrawLine(app->renderer, center_x, 0, center_x, h);
-}
-
-void draw_grid(AppContext *app) {
-    int w, h;
-    SDL_GetWindowSize(app->window, &w, &h);
-
-    int center_x, center_y;
-    get_window_center(app, &center_x, &center_y);
-    
+void draw_grid(AppContext *app) {    
     SDL_SetRenderDrawColor(app->renderer, 60, 60, 60, 255);
 
+    int scale_int = (int)SCALE; // pixel coordinates are integers
+
+    int offset_x = app->center_x % scale_int;
+
     // vertikal lines
-    for (int x = center_x; x < w; x += SCALE) {
-        SDL_RenderDrawLine(app->renderer, x, 0, x, h);
+    for (int x = offset_x; x < app->screen_width; x += scale_int) {
+        SDL_RenderDrawLine(app->renderer, x, 0, x, app->screen_height);
     }
-    for (int x = center_x; x >= 0; x -= SCALE) {
-        SDL_RenderDrawLine(app->renderer, x, 0, x, h);
-    }
+
+    int offset_y = app->center_y % scale_int;
 
     // horizontal lines
-    for (int y = center_y; y < h; y += SCALE) {
-        SDL_RenderDrawLine(app->renderer, 0, y, w, y);
-    }
-    for (int y = center_y; y >= 0; y -= SCALE) {
-        SDL_RenderDrawLine(app->renderer, 0, y, w, y);
+    for (int y = offset_y; y < app->screen_height; y += scale_int) {
+        SDL_RenderDrawLine(app->renderer, 0, y, app->screen_width, y);
     }
 
+}
+
+void draw_axes(AppContext *app) {
+    SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
+    SDL_RenderDrawLine(app->renderer, 0, app->center_y, app->screen_width, app->center_y);
+    SDL_RenderDrawLine(app->renderer, app->center_x, 0, app->center_x, app->screen_height);
 }
