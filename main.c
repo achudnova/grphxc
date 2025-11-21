@@ -23,6 +23,7 @@ void render_app(AppContext *app);
 bool print_sdl_error(const char *message);
 void draw_axes(AppContext *app);
 void draw_grid(AppContext *app);
+void get_window_center(AppContext *app, int *center_x, int *center_y);
 
 int main(void) {
     AppContext app;
@@ -101,13 +102,19 @@ bool print_sdl_error(const char *message) {
     return false;
 }
 
+void get_window_center(AppContext *app, int *center_x, int *center_y) {
+    int w, h;
+    SDL_GetWindowSize(app->window, &w, &h);
+    *center_x = w / 2;
+    *center_y = h / 2;
+}
+
 void draw_axes(AppContext *app) {
-    int w;
-    int h;
+    int w, h;
     SDL_GetWindowSize(app->window, &w, &h);
 
-    int center_x = w / 2;
-    int center_y = h / 2;
+    int center_x, center_y;
+    get_window_center(app, &center_x, &center_y);
 
     SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
     SDL_RenderDrawLine(app->renderer, 0, center_y, w, center_y);
@@ -118,9 +125,9 @@ void draw_grid(AppContext *app) {
     int w, h;
     SDL_GetWindowSize(app->window, &w, &h);
 
-    int center_x = w / 2;
-    int center_y = h / 2;
-
+    int center_x, center_y;
+    get_window_center(app, &center_x, &center_y);
+    
     SDL_SetRenderDrawColor(app->renderer, 60, 60, 60, 255);
 
     // vertikal lines
