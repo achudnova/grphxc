@@ -16,7 +16,7 @@ bool init_app(AppContext *app);
 void process_input(AppContext *app);
 void cleanup_app(AppContext *app);
 void render_app(AppContext *app);
-void print_sdl_error(const char *message);
+bool print_sdl_error(const char *message);
 
 int main(void) {
     AppContext app;
@@ -38,10 +38,7 @@ bool init_app(AppContext *app) {
     app->quit = false;
 
     // initialize SDL video subsystem
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        printf("ERROR: SDL initialization failed: %s\n", SDL_GetError());
-        return false;
-    }
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) return print_sdl_error("SDL initialization failed");
 
     app->window = SDL_CreateWindow(
         "grphx calculator",
@@ -51,20 +48,14 @@ bool init_app(AppContext *app) {
         SCREEN_HEIGHT,
         0
     );
-    if (!app->window) {
-        printf("ERROR: Window failed to create; %s\n", SDL_GetError());
-        return false;
-    }
+    if (!app->window) return print_sdl_error("Window failed to create");
 
     app->renderer = SDL_CreateRenderer(
         app->window,
         -1,
         SDL_RENDERER_ACCELERATED
     );
-    if (!app->renderer) {
-        printf("ERROR: Renderer failed to create: %s\n", SDL_GetError());
-        return false;
-    }
+    if (!app->renderer) return print_sdl_error("Renderer failed to create");
 
     return true;
 }
@@ -91,4 +82,10 @@ void cleanup_app(AppContext *app) {
     if (app->renderer) SDL_DestroyRenderer(app->renderer);
     if (app->window) SDL_DestroyWindow(app->window);
     SDL_Quit();
+}
+
+// helper function to print SDL errors
+bool print_sdl_error(const char *message) {
+    printf("ERROR: %s: %s\n", message, SDL_GetError());
+    return false;
 }
