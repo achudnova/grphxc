@@ -2,12 +2,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
+#include <SDL2/SDL2_gfxPrimitives.h>
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
 
 // graph settings
-const float SCALE = 50.0f;  // 30 pixels = 1 unit
+const float SCALE = 80.0f;  // 30 pixels = 1 unit
 
 // application state
 typedef struct {
@@ -28,6 +29,8 @@ void render_app(AppContext *app);
 bool print_sdl_error(const char *message);
 void draw_axes(AppContext *app);
 void draw_grid(AppContext *app);
+void draw_graph(AppContext *app);
+float f(float x);
 
 int main(void) {
     AppContext app;
@@ -93,7 +96,7 @@ void render_app(AppContext *app) {
 
     draw_grid(app);
     draw_axes(app);
-    // draw_graph(app);
+    draw_graph(app);
 
     SDL_RenderPresent(app->renderer);
 }
@@ -136,4 +139,29 @@ void draw_axes(AppContext *app) {
     SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
     SDL_RenderDrawLine(app->renderer, 0, app->center_y, app->screen_width, app->center_y);
     SDL_RenderDrawLine(app->renderer, app->center_x, 0, app->center_x, app->screen_height);
+}
+
+void draw_graph(AppContext *app) {
+    // SDL_SetRenderDrawColor(app->renderer, 255, 255, 0, 255);
+    float x1, x2, y1, y2;
+    int pixel_y1, pixel_y2;
+
+    for (int pixel = 0; pixel < app->screen_width - 1; pixel++) {
+        x1 = (pixel - app->center_x) / SCALE;
+        x2 = (pixel + 1 - app->center_x) / SCALE;
+
+        y1 = f(x1);
+        y2 = f(x2);
+
+        pixel_y1 = app->center_y - (int)(y1 * SCALE);
+        pixel_y2 = app->center_y - (int)(y2 * SCALE);
+
+        //SDL_RenderDrawLine(app->renderer, pixel, pixel_y1, pixel + 1, pixel_y2);
+        thickLineRGBA(app->renderer, pixel, pixel_y1, pixel + 1, pixel_y2, 3, 46, 109, 255, 255);
+    }
+}
+
+// math helper
+float f(float x) {
+    return cos(x);
 }
